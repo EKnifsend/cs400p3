@@ -16,6 +16,7 @@ import java.util.List;
  *
  */
 public interface BackendInterface<T> {
+	public void initializeGraph();
 	public boolean addPlanet(String planet);
 	public boolean addPath(String planet, int path); // adds path to specified planet
 	public boolean removePlanet(String planet); // removes planet’s paths too
