@@ -62,7 +62,7 @@ public class Paths {
 	 * @return String that contains the information about a certain planet
 	 */
 	public String toString() {
-		return "It takes " + fuelCost + " gallons to go from " + start + " to " + end;
+		return "It takes " + fuelCost + " gallons to go from " + start.getName() + " to " + end.getName();
 	}
 	
 }

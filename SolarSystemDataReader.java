@@ -48,6 +48,7 @@ public class SolarSystemDataReader {
 //	    	   planetMeanTemp = Integer.parseInt(planetEntry[3]);
 					planetNames.add(new Planets(planetEntry[1]));
 				}
+				row = reader.readLine();
 			}
 			reader.close();
 			return planetNames;
@@ -87,6 +88,8 @@ public class SolarSystemDataReader {
 					fuel = Integer.parseInt(pathEntry[3]);
 					pathToPlanets.add(new Paths(planetStart, targetPlanet, fuel)); // add a Paths object to the list of pathToPlanets
 				}
+				
+				row = reader.readLine();
 			}
 			reader.close();
 			return pathToPlanets;

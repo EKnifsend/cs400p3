@@ -9,6 +9,11 @@
 // Notes to Grader: N/A
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 public class DataWranglerTests {
@@ -37,16 +42,41 @@ public class DataWranglerTests {
 		String expectedForEarthToMars = "It takes 500 gallons to go from Earth to Mars";
 		assertEquals(expectedForEarthToMars, Earth2Mars.toString());
 		
+	}
+	
+	@Test
+	public void testReadPlanetNames() throws IOException {
+		Reader filePathInput;
+		filePathInput = new FileReader("solarsystem.csv");
+		List<Planets> planetNames;
+		SolarSystemDataReader readDataSet = new SolarSystemDataReader();
+		
+		planetNames = readDataSet.readPlanetNames(filePathInput);
+		System.out.print("Test");
+		if(!planetNames.get(0).getName().equals("Mercury")) {
+			fail("Didn't get the first correct planet name – should be Mercury");
+		}
+		if(!planetNames.get(9).getName().equals("Sun")) {
+			fail("Didn't get the last correct planet name – should be Sun");
+		}
 		
 	}
 	
 	@Test
-	public void testReadPlanetNames() {
+	public void testReadPathsToPlanets() throws IOException {
+		Reader filePathInput;
+		filePathInput = new FileReader("solarsystem.csv");
+		List<Paths> pathToPlanets;
+		SolarSystemDataReader readDataSet = new SolarSystemDataReader();
 		
-	}
-	
-	@Test
-	public void testReadPathsToPlanets() {
+		pathToPlanets = readDataSet.readPaths(filePathInput);
+		if(pathToPlanets.get(0).getFuelCost() != 400) {
+			fail("Did not get the right cost");
+		}
+		
+		if(!pathToPlanets.get(9).getEnd().getName().equals("Uranus")) {
+			fail("Should have returned Uranus as the target planet vertex");
+		}
 		
 	}
 	
