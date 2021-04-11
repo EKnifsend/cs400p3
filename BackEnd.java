@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.zip.DataFormatException;
 
 // --== CS400 File Header Information ==--
 // Name: Jessica Xu
@@ -38,9 +37,13 @@ public class BackEnd {
 	 */
 	public BackEnd(String input) throws FileNotFoundException, IOException {
 		SolarSystemDataReader dataReader = new SolarSystemDataReader();
+		planetsList = new ArrayList<Planets>();
+		pathsList = new ArrayList<Paths>();
 		try {
-			planetsList = dataReader.readPlanetNames(new StringReader(input));
-			pathsList = dataReader.readPaths(new StringReader(input));
+
+			List<String> list = dataReader.read(new StringReader(input));
+			helper(list);
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -57,15 +60,42 @@ public class BackEnd {
 	 */
 	public BackEnd(Reader filepath) throws FileNotFoundException, IOException {
 		SolarSystemDataReader dataReader = new SolarSystemDataReader();
+		planetsList = new ArrayList<Planets>();
+		pathsList = new ArrayList<Paths>();
 		try {
-			planetsList = dataReader.readPlanetNames(filepath);
-			pathsList = dataReader.readPaths(filepath);
+
+			List<String> list = dataReader.read(filepath);
+			helper(list);
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			initializeGraph();
+		}
+	}
+
+	/**
+	 * Helper method for constructor to sort list of strings returned by
+	 * SolarSystemDataReader and add to either pathsList or planetsList based on
+	 * String object
+	 * 
+	 * @param list
+	 */
+	public void helper(List<String> list) {
+		for (int i = 0; i < list.size(); i++) {
+			String[] pathEntry = list.get(i).split(", ");
+			if (pathEntry[0].equalsIgnoreCase("Planet")) {
+				Planets planet = (new Planets(pathEntry[1]));
+				System.out.println(planet.getName());
+				planetsList.add(planet);
+			}
+			if (pathEntry[0].equalsIgnoreCase("Edge")) {
+				System.out.println(pathEntry[0]+ ", " +  pathEntry[1] + ", " + pathEntry[2] + ", " + pathEntry[3]);
+				pathsList.add(new Paths(new Planets(pathEntry[1]), new Planets(pathEntry[2]),
+						Integer.parseInt(pathEntry[3])));
+			}
 		}
 	}
 
@@ -84,7 +114,8 @@ public class BackEnd {
 
 		// add all the paths to the graph
 		for (int i = 0; i < pathsList.size(); i++) {
-			solarSystem.insertEdge(pathsList.get(i).getStart(), pathsList.get(i).getStart(),
+			System.out.println(i);
+			solarSystem.insertEdge(pathsList.get(i).getStart(), pathsList.get(i).getEnd(),
 					pathsList.get(i).getFuelCost());
 			size++;
 		}
@@ -131,7 +162,7 @@ public class BackEnd {
 			size++;
 			return true;
 		}
-		
+
 		return false;
 	}
 
