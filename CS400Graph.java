@@ -1,421 +1,406 @@
-
-// --== CS400 File Header Information ==--
-// Name: Gabriela Setyawan
-// Email: gsetyawan@wisc.edu
-// Team: FB
-// TA: Daniel Finer
-// Lecturer: Gary Dahl
-// Notes to Grader: <optional extra notes>
 import java.util.Hashtable;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.NoSuchElementException;
 
+// --== CS400 File Header Information ==--
+// Name: Ethan Knifsend
+// Email: Knifsend@wisc.edu
+// Team: FB blue
+// Role: Integration Manager
+// TA: Daniel Finer
+// Lecturer: Gary Dahl
+// Notes to Grader: n/a
+
 public class CS400Graph<T> implements GraphADT<T> {
 
-	/**
-	 * Vertex objects group a data field with an adjacency list of weighted directed
-	 * edges that lead away from them.
-	 */
-	protected class Vertex {
-		public T data; // vertex label or application specific data
-		public LinkedList<Edge> edgesLeaving;
+  /**
+   * Vertex objects group a data field with an adjacency list of weighted directed edges that lead
+   * away from them.
+   */
+  protected class Vertex {
+    public T data; // vertex label or application specific data
+    public LinkedList<Edge> edgesLeaving;
 
-		public Vertex(T data) {
-			this.data = data;
-			this.edgesLeaving = new LinkedList<>();
-		}
-	}
+    public Vertex(T data) {
+      this.data = data;
+      this.edgesLeaving = new LinkedList<>();
+    }
+  }
 
-	/**
-	 * Edge objects are stored within their source vertex, and group together their
-	 * target destination vertex, along with an integer weight.
-	 */
-	protected class Edge {
-		public Vertex target;
-		public int weight;
+  /**
+   * Edge objects are stored within their source vertex, and group together their target destination
+   * vertex, along with an integer weight.
+   */
+  protected class Edge {
+    public Vertex target;
+    public int weight;
 
-		public Edge(Vertex target, int weight) {
-			this.target = target;
-			this.weight = weight;
-		}
-	}
+    public Edge(Vertex target, int weight) {
+      this.target = target;
+      this.weight = weight;
+    }
+  }
 
-	protected Hashtable<T, Vertex> vertices; // holds graph vertices, key=data
+  protected Hashtable<T, Vertex> vertices; // holds graph vertices, key=data
 
-	public CS400Graph() {
-		vertices = new Hashtable<>();
-	}
+  public CS400Graph() {
+    vertices = new Hashtable<>();
+  }
 
-	/**
-	 * Insert a new vertex into the graph.
-	 * 
-	 * @param data the data item stored in the new vertex
-	 * @return true if the data can be inserted as a new vertex, false if it is
-	 *         already in the graph
-	 * @throws NullPointerException if data is null
-	 */
-	public boolean insertVertex(T data) {
-		if (data == null)
-			throw new NullPointerException("Cannot add null vertex");
-		if (vertices.containsKey(data))
-			return false; // duplicate values are not allowed
-		vertices.put(data, new Vertex(data));
-		return true;
-	}
+  /**
+   * Insert a new vertex into the graph.
+   * 
+   * @param data the data item stored in the new vertex
+   * @return true if the data can be inserted as a new vertex, false if it is already in the graph
+   * @throws NullPointerException if data is null
+   */
+  public boolean insertVertex(T data) {
+    if (data == null)
+      throw new NullPointerException("Cannot add null vertex");
+    if (vertices.containsKey(data))
+      return false; // duplicate values are not allowed
+    vertices.put(data, new Vertex(data));
+    return true;
+  }
 
-	/**
-	 * Remove a vertex from the graph. Also removes all edges adjacent to the vertex
-	 * from the graph (all edges that have the vertex as a source or a destination
-	 * vertex).
-	 * 
-	 * @param data the data item stored in the vertex to remove
-	 * @return true if a vertex with *data* has been removed, false if it was not in
-	 *         the graph
-	 * @throws NullPointerException if data is null
-	 */
-	public boolean removeVertex(T data) {
-		if (data == null)
-			throw new NullPointerException("Cannot remove null vertex");
-		Vertex removeVertex = vertices.get(data);
-		if (removeVertex == null)
-			return false; // vertex not found within graph
-		// search all vertices for edges targeting removeVertex
-		for (Vertex v : vertices.values()) {
-			Edge removeEdge = null;
-			for (Edge e : v.edgesLeaving)
-				if (e.target == removeVertex)
-					removeEdge = e;
-			// and remove any such edges that are found
-			if (removeEdge != null)
-				v.edgesLeaving.remove(removeEdge);
-		}
-		// finally remove the vertex and all edges contained within it
-		return vertices.remove(data) != null;
-	}
+  /**
+   * Remove a vertex from the graph. Also removes all edges adjacent to the vertex from the graph
+   * (all edges that have the vertex as a source or a destination vertex).
+   * 
+   * @param data the data item stored in the vertex to remove
+   * @return true if a vertex with *data* has been removed, false if it was not in the graph
+   * @throws NullPointerException if data is null
+   */
+  public boolean removeVertex(T data) {
+    if (data == null)
+      throw new NullPointerException("Cannot remove null vertex");
+    Vertex removeVertex = vertices.get(data);
+    if (removeVertex == null)
+      return false; // vertex not found within graph
+    // search all vertices for edges targeting removeVertex
+    for (Vertex v : vertices.values()) {
+      Edge removeEdge = null;
+      for (Edge e : v.edgesLeaving)
+        if (e.target == removeVertex)
+          removeEdge = e;
+      // and remove any such edges that are found
+      if (removeEdge != null)
+        v.edgesLeaving.remove(removeEdge);
+    }
+    // finally remove the vertex and all edges contained within it
+    return vertices.remove(data) != null;
+  }
 
-	/**
-	 * Insert a new directed edge with a positive edge weight into the graph.
-	 * 
-	 * @param source the data item contained in the source vertex for the edge
-	 * @param target the data item contained in the target vertex for the edge
-	 * @param weight the weight for the edge (has to be a positive integer)
-	 * @return true if the edge could be inserted or its weight updated, false if
-	 *         the edge with the same weight was already in the graph
-	 * @throws IllegalArgumentException if either source or target or both are not
-	 *                                  in the graph, or if its weight is < 0
-	 * @throws NullPointerException     if either source or target or both are null
-	 */
-	public boolean insertEdge(T source, T target, int weight) {
-		if (source == null || target == null)
-			throw new NullPointerException("Cannot add edge with null source or target");
-		Vertex sourceVertex = this.vertices.get(source);
-		Vertex targetVertex = this.vertices.get(target);
-		if (sourceVertex == null || targetVertex == null)
-			throw new IllegalArgumentException("Cannot add edge with vertices that do not exist");
-		if (weight < 0)
-			throw new IllegalArgumentException("Cannot add edge with negative weight");
-		// handle cases where edge already exists between these verticies
-		for (Edge e : sourceVertex.edgesLeaving)
-			if (e.target == targetVertex) {
-				if (e.weight == weight)
-					return false; // edge already exists
-				else
-					e.weight = weight; // otherwise update weight of existing edge
-				return true;
-			}
-		// otherwise add new edge to sourceVertex
-		sourceVertex.edgesLeaving.add(new Edge(targetVertex, weight));
-		return true;
-	}
+  /**
+   * Insert a new directed edge with a positive edge weight into the graph.
+   * 
+   * @param source the data item contained in the source vertex for the edge
+   * @param target the data item contained in the target vertex for the edge
+   * @param weight the weight for the edge (has to be a positive integer)
+   * @return true if the edge could be inserted or its weight updated, false if the edge with the
+   *         same weight was already in the graph
+   * @throws IllegalArgumentException if either source or target or both are not in the graph, or if
+   *                                  its weight is < 0
+   * @throws NullPointerException     if either source or target or both are null
+   */
+  public boolean insertEdge(T source, T target, int weight) {
+    if (source == null || target == null)
+      throw new NullPointerException("Cannot add edge with null source or target");
+    Vertex sourceVertex = this.vertices.get(source);
+    Vertex targetVertex = this.vertices.get(target);
+    if (sourceVertex == null || targetVertex == null)
+      throw new IllegalArgumentException("Cannot add edge with vertices that do not exist");
+    if (weight < 0)
+      throw new IllegalArgumentException("Cannot add edge with negative weight");
+    // handle cases where edge already exists between these verticies
+    for (Edge e : sourceVertex.edgesLeaving)
+      if (e.target == targetVertex) {
+        if (e.weight == weight)
+          return false; // edge already exists
+        else
+          e.weight = weight; // otherwise update weight of existing edge
+        return true;
+      }
+    // otherwise add new edge to sourceVertex
+    sourceVertex.edgesLeaving.add(new Edge(targetVertex, weight));
+    return true;
+  }
 
-	/**
-	 * Remove an edge from the graph.
-	 * 
-	 * @param source the data item contained in the source vertex for the edge
-	 * @param target the data item contained in the target vertex for the edge
-	 * @return true if the edge could be removed, false if it was not in the graph
-	 * @throws IllegalArgumentException if either source or target or both are not
-	 *                                  in the graph
-	 * @throws NullPointerException     if either source or target or both are null
-	 */
-	public boolean removeEdge(T source, T target) {
-		if (source == null || target == null)
-			throw new NullPointerException("Cannot remove edge with null source or target");
-		Vertex sourceVertex = this.vertices.get(source);
-		Vertex targetVertex = this.vertices.get(target);
-		if (sourceVertex == null || targetVertex == null)
-			throw new IllegalArgumentException("Cannot remove edge with vertices that do not exist");
-		// find edge to remove
-		Edge removeEdge = null;
-		for (Edge e : sourceVertex.edgesLeaving)
-			if (e.target == targetVertex)
-				removeEdge = e;
-		if (removeEdge != null) { // remove edge that is successfully found
-			sourceVertex.edgesLeaving.remove(removeEdge);
-			return true;
-		}
-		return false; // otherwise return false to indicate failure to find
-	}
+  /**
+   * Remove an edge from the graph.
+   * 
+   * @param source the data item contained in the source vertex for the edge
+   * @param target the data item contained in the target vertex for the edge
+   * @return true if the edge could be removed, false if it was not in the graph
+   * @throws IllegalArgumentException if either source or target or both are not in the graph
+   * @throws NullPointerException     if either source or target or both are null
+   */
+  public boolean removeEdge(T source, T target) {
+    if (source == null || target == null)
+      throw new NullPointerException("Cannot remove edge with null source or target");
+    Vertex sourceVertex = this.vertices.get(source);
+    Vertex targetVertex = this.vertices.get(target);
+    if (sourceVertex == null || targetVertex == null)
+      throw new IllegalArgumentException("Cannot remove edge with vertices that do not exist");
+    // find edge to remove
+    Edge removeEdge = null;
+    for (Edge e : sourceVertex.edgesLeaving)
+      if (e.target == targetVertex)
+        removeEdge = e;
+    if (removeEdge != null) { // remove edge that is successfully found
+      sourceVertex.edgesLeaving.remove(removeEdge);
+      return true;
+    }
+    return false; // otherwise return false to indicate failure to find
+  }
 
-	/**
-	 * Check if the graph contains a vertex with data item *data*.
-	 * 
-	 * @param data the data item to check for
-	 * @return true if data item is stored in a vertex of the graph, false otherwise
-	 * @throws NullPointerException if *data* is null
-	 */
-	public boolean containsVertex(T data) {
-		if (data == null)
-			throw new NullPointerException("Cannot contain null data vertex");
-		return vertices.containsKey(data);
-	}
+  /**
+   * Check if the graph contains a vertex with data item *data*.
+   * 
+   * @param data the data item to check for
+   * @return true if data item is stored in a vertex of the graph, false otherwise
+   * @throws NullPointerException if *data* is null
+   */
+  public boolean containsVertex(T data) {
+    if (data == null)
+      throw new NullPointerException("Cannot contain null data vertex");
+    return vertices.containsKey(data);
+  }
 
-	/**
-	 * Check if edge is in the graph.
-	 * 
-	 * @param source the data item contained in the source vertex for the edge
-	 * @param target the data item contained in the target vertex for the edge
-	 * @return true if the edge is in the graph, false if it is not in the graph
-	 * @throws NullPointerException if either source or target or both are null
-	 */
-	public boolean containsEdge(T source, T target) {
-		if (source == null || target == null)
-			throw new NullPointerException("Cannot contain edge adjacent to null data");
-		Vertex sourceVertex = vertices.get(source);
-		Vertex targetVertex = vertices.get(target);
-		if (sourceVertex == null)
-			return false;
-		for (Edge e : sourceVertex.edgesLeaving)
-			if (e.target == targetVertex)
-				return true;
-		return false;
-	}
+  /**
+   * Check if edge is in the graph.
+   * 
+   * @param source the data item contained in the source vertex for the edge
+   * @param target the data item contained in the target vertex for the edge
+   * @return true if the edge is in the graph, false if it is not in the graph
+   * @throws NullPointerException if either source or target or both are null
+   */
+  public boolean containsEdge(T source, T target) {
+    if (source == null || target == null)
+      throw new NullPointerException("Cannot contain edge adjacent to null data");
+    Vertex sourceVertex = vertices.get(source);
+    Vertex targetVertex = vertices.get(target);
+    if (sourceVertex == null)
+      return false;
+    for (Edge e : sourceVertex.edgesLeaving)
+      if (e.target == targetVertex)
+        return true;
+    return false;
+  }
 
-	/**
-	 * Return the weight of an edge.
-	 * 
-	 * @param source the data item contained in the source vertex for the edge
-	 * @param target the data item contained in the target vertex for the edge
-	 * @return the weight of the edge (0 or positive integer)
-	 * @throws IllegalArgumentException if either sourceVertex or targetVertex or
-	 *                                  both are not in the graph
-	 * @throws NullPointerException     if either sourceVertex or targetVertex or
-	 *                                  both are null
-	 * @throws NoSuchElementException   if edge is not in the graph
-	 */
-	public int getWeight(T source, T target) {
-		if (source == null || target == null)
-			throw new NullPointerException("Cannot contain weighted edge adjacent to null data");
-		Vertex sourceVertex = vertices.get(source);
-		Vertex targetVertex = vertices.get(target);
-		if (sourceVertex == null || targetVertex == null)
-			throw new IllegalArgumentException("Cannot retrieve weight of edge between vertices that do not exist");
-		for (Edge e : sourceVertex.edgesLeaving)
-			if (e.target == targetVertex)
-				return e.weight;
-		throw new NoSuchElementException("No directed edge found between these vertices");
-	}
+  /**
+   * Return the weight of an edge.
+   * 
+   * @param source the data item contained in the source vertex for the edge
+   * @param target the data item contained in the target vertex for the edge
+   * @return the weight of the edge (0 or positive integer)
+   * @throws IllegalArgumentException if either sourceVertex or targetVertex or both are not in the
+   *                                  graph
+   * @throws NullPointerException     if either sourceVertex or targetVertex or both are null
+   * @throws NoSuchElementException   if edge is not in the graph
+   */
+  public int getWeight(T source, T target) {
+    if (source == null || target == null)
+      throw new NullPointerException("Cannot contain weighted edge adjacent to null data");
+    Vertex sourceVertex = vertices.get(source);
+    Vertex targetVertex = vertices.get(target);
+    if (sourceVertex == null || targetVertex == null)
+      throw new IllegalArgumentException(
+          "Cannot retrieve weight of edge between vertices that do not exist");
+    for (Edge e : sourceVertex.edgesLeaving)
+      if (e.target == targetVertex)
+        return e.weight;
+    throw new NoSuchElementException("No directed edge found between these vertices");
+  }
 
-	/**
-	 * Return the number of edges in the graph.
-	 * 
-	 * @return the number of edges in the graph
-	 */
-	public int getEdgeCount() {
-		int edgeCount = 0;
-		for (Vertex v : vertices.values())
-			edgeCount += v.edgesLeaving.size();
-		return edgeCount;
-	}
+  /**
+   * Return the number of edges in the graph.
+   * 
+   * @return the number of edges in the graph
+   */
+  public int getEdgeCount() {
+    int edgeCount = 0;
+    for (Vertex v : vertices.values())
+      edgeCount += v.edgesLeaving.size();
+    return edgeCount;
+  }
 
-	/**
-	 * Return the number of vertices in the graph
-	 * 
-	 * @return the number of vertices in the graph
-	 */
-	public int getVertexCount() {
-		return vertices.size();
-	}
+  /**
+   * Return the number of vertices in the graph
+   * 
+   * @return the number of vertices in the graph
+   */
+  public int getVertexCount() {
+    return vertices.size();
+  }
 
-	/**
-	 * Check if the graph is empty (does not contain any vertices or edges).
-	 * 
-	 * @return true if the graph does not contain any vertices or edges, false
-	 *         otherwise
-	 */
-	public boolean isEmpty() {
-		return vertices.size() == 0;
-	}
+  /**
+   * Check if the graph is empty (does not contain any vertices or edges).
+   * 
+   * @return true if the graph does not contain any vertices or edges, false otherwise
+   */
+  public boolean isEmpty() {
+    return vertices.size() == 0;
+  }
 
-	/**
-	 * Path objects store a discovered path of vertices and the overall distance of
-	 * cost of the weighted directed edges along this path. Path objects can be
-	 * copied and extended to include new edges and vertices using the extend
-	 * constructor. In comparison to a predecessor table which is sometimes used to
-	 * implement Dijkstra's algorithm, this eliminates the need for tracing paths
-	 * backwards from the destination vertex to the starting vertex at the end of
-	 * the algorithm.
-	 */
-	protected class Path implements Comparable<Path> {
-		public Vertex start; // first vertex within path
-		public int distance; // summed weight of all edges in path
-		public List<T> dataSequence; // ordered sequence of data from vertices in path
-		public Vertex end; // last vertex within path
+  /**
+   * Path objects store a discovered path of vertices and the overal distance of cost of the
+   * weighted directed edges along this path. Path objects can be copied and extended to include new
+   * edges and verticies using the extend constructor. In comparison to a predecessor table which is
+   * sometimes used to implement Dijkstra's algorithm, this eliminates the need for tracing paths
+   * backwards from the destination vertex to the starting vertex at the end of the algorithm.
+   */
+  protected class Path implements Comparable<Path> {
+    public Vertex start; // first vertex within path
+    public int distance; // sumed weight of all edges in path
+    public List<T> dataSequence; // ordered sequence of data from vertices in path
+    public Vertex end; // last vertex within path
 
-		/**
-		 * Creates a new path containing a single vertex. Since this vertex is both the
-		 * start and end of the path, it's initial distance is zero.
-		 * 
-		 * @param start is the first vertex on this path
-		 */
-		public Path(Vertex start) {
-			this.start = start;
-			this.distance = 0;
-			this.dataSequence = new LinkedList<>();
-			this.dataSequence.add(start.data);
-			this.end = start;
-		}
+    /**
+     * Creates a new path containing a single vertex. Since this vertex is both the start and end of
+     * the path, it's initial distance is zero.
+     * 
+     * @param start is the first vertex on this path
+     */
+    public Path(Vertex start) {
+      this.start = start;
+      this.distance = 0;
+      this.dataSequence = new LinkedList<>();
+      this.dataSequence.add(start.data);
+      this.end = start;
+    }
 
-		/**
-		 * This extension constructor makes a copy of the path passed into it as an
-		 * argument without affecting the original path object (copyPath). The path is
-		 * then extended by the Edge object extendBy.
-		 * 
-		 * @param copyPath is the path that is being copied
-		 * @param extendBy is the edge the copied path is extended by
-		 */
-		public Path(Path copyPath, Edge extendBy) {
-			this.start = copyPath.start; 
-			this.distance = copyPath.distance + extendBy.weight;
-			this.dataSequence = new LinkedList<T>(); 
-			this.dataSequence.addAll(copyPath.dataSequence); // add all the data sequence from the previous path to the new extended path
-			this.end = extendBy.target;
-			this.dataSequence.add(extendBy.target.data); // add the target's vertex data to the data sequence
-		}
+    /**
+     * This extension constructor makes a copy of the path passed into it as an argument without
+     * affecting the original path object (copyPath). The path is then extended by the Edge object
+     * extendBy.
+     * 
+     * @param copyPath is the path that is being copied
+     * @param extendBy is the edge the copied path is extended by
+     */
+    public Path(Path copyPath, Edge extendBy) {
+      // TODO: Implement this constructor in Step 5.
+      this.start = copyPath.start;
+      this.distance = copyPath.distance + extendBy.weight;
+      this.dataSequence = clone(copyPath.dataSequence);
+      this.dataSequence.add(extendBy.target.data);
+      this.end = extendBy.target;
+    }
 
-		/**
-		 * Allows the natural ordering of paths to be increasing with path distance.
-		 * When path distance is equal, the string comparison of end vertex data is used
-		 * to break ties.
-		 * 
-		 * @param other is the other path that is being compared to this one
-		 * @return -1 when this path has a smaller distance than the other, +1 when this
-		 *         path has a larger distance that the other, and the comparison of end
-		 *         vertex data in string form when these distances are tied
-		 */
-		public int compareTo(Path other) {
-			int cmp = this.distance - other.distance;
-			if (cmp != 0)
-				return cmp; // use path distance as the natural ordering
-			// when path distances are equal, break ties by comparing the string
-			// representation of data in the end vertex of each path
-			return this.end.data.toString().compareTo(other.end.data.toString());
-		}
-	}
+    /**
+     * Private helper method that creates a deep copy of an inputed list.
+     * 
+     * @param list List<T> to be copied
+     * @return List<T> deep copy of inputed list
+     */
+    private List<T> clone(List<T> list) {
+      List<T> newList = new LinkedList<>();
 
-	/**
-	 * Uses Dijkstra's shortest path algorithm to find and return the shortest path
-	 * between two vertices in this graph: start and end. This path contains an
-	 * ordered list of the data within each node on this path, and also the distance
-	 * or cost of all edges that are a part of this path.
-	 * 
-	 * @param start data item within first node in path
-	 * @param end   data item within last node in path
-	 * @return the shortest path from start to end, as computed by Dijkstra's
-	 *         algorithm
-	 * @throws NoSuchElementException when no path from start to end can be found,
-	 *                                including when no vertex containing start or
-	 *                                end can be found
-	 */
-	protected Path dijkstrasShortestPath(T start, T end) {
-		if (!containsVertex(start)) { // check if graph contains the vertex that has starting data
-			throw new NoSuchElementException("The graph doesn't contain a vertex that has the starting data");
-		}
-		if (!containsVertex(end)) { // check if graph contains the vertex that has ending data
-			throw new NoSuchElementException("The graph doesn't contain a vertex that has the ending data");
-		}
+      for (int i = 0; i < list.size(); i++) {
+        newList.add(i, list.get(i));
+      }
 
-		PriorityQueue<Path> frontier = new PriorityQueue<Path>(); // holds the path that hold the discovered paths
-		PriorityQueue<Path> completedPath = new PriorityQueue<Path>(); // holds all the completed path that starts from
-																		// the starting data and ends at the ending data
-		Path temporary; // to hold paths that are to be evaluated using its end vertex and seeing the edges leaving that end vertex
-		Path startingPath = new Path(vertices.get(start));
-		if (start.equals(end)) { // if the path is a path that connects the same starting and ending vertex (i.e from start -> start)
-			return startingPath; // return that sole path
-		}
+      return newList;
+    }
 
-		LinkedList<Vertex> visited = new LinkedList<Vertex>(); // list of all vertexes that have been visited by the algorithm
+    /**
+     * Allows the natural ordering of paths to be increasing with path distance. When path distance
+     * is equal, the string comparison of end vertex data is used to break ties.
+     * 
+     * @param other is the other path that is being compared to this one
+     * @return -1 when this path has a smaller distance than the other, +1 when this path has a
+     *         larger distance that the other, and the comparison of end vertex data in string form
+     *         when these distances are tied
+     */
+    public int compareTo(Path other) {
+      int cmp = this.distance - other.distance;
+      if (cmp != 0)
+        return cmp; // use path distance as the natural ordering
+      // when path distances are equal, break ties by comparing the string
+      // representation of data in the end vertex of each path
+      return this.end.data.toString().compareTo(other.end.data.toString());
+    }
+  }
 
-		frontier.add(startingPath); // add path containing only a starting vertex
-		visited.add(vertices.get(start)); // add to visited list the vertex that was part of the starting path
+  /**
+   * Uses Dijkstra's shortest path algorithm to find and return the shortest path between two
+   * vertices in this graph: start and end. This path contains an ordered list of the data within
+   * each node on this path, and also the distance or cost of all edges that are a part of this
+   * path.
+   * 
+   * @param start data item within first node in path
+   * @param end   data item within last node in path
+   * @return the shortest path from start to end, as computed by Dijkstra's algorithm
+   * @throws NoSuchElementException when no path from start to end can be found, including when no
+   *                                vertex containing start or end can be found
+   */
+  protected Path dijkstrasShortestPath(T start, T end) {
+    List<T> visited = new LinkedList<>(); // List of vertex values for which the shortest path has
+                                          // been found
+    // List<Path> found = new LinkedList<>();
+    PriorityQueue<Path> frontier = new PriorityQueue<>(); // Priority queue of all paths found
 
-		while (!frontier.isEmpty()) {
-			temporary = frontier.poll();
-			for (Edge e : temporary.end.edgesLeaving) {
-				if (e.target.data.equals(end)) { // check if the data of the edge's target vertex contains the end data
-					Path containsEnd = new Path(temporary, e); // create a new Path that extends the temporary path with
-																// the edge that contains ending data end
-					completedPath.add(containsEnd);
-				} else if (!visited.contains(e.target)) { // if the target vertex from the edge leaving that path is not contained in visited
-					Path newPath = new Path(temporary, e); // makes a new path by extending it with e
-					frontier.add(newPath); // adds the new path to the frontier priority queue
-					visited.add(newPath.end); // adds the end vertex of the new Path to the visited Linkedlist
-				} else if (visited.contains(e.target)) { // if the target vertex from the edge leaving that path is already contained in the visited linked list
-					Path altPath = new Path(temporary, e); // makes a new path by extending it with e
-					for (Path ways : frontier) { // check for every path in the frontier
-						if (altPath.compareTo(ways) < 0 && (altPath.end.equals(ways.end))) { // if the end is equal to alt path and has a cheaper cost
-							frontier.remove(ways); // remove the original path from the frontier that has the same ending vertex with altPath
-							frontier.add(altPath); // add altPath to the frontier
-							break;
-						}
-					}
+    if (vertices.get(start) == null) {
+      throw new NoSuchElementException("The value you are seeking a path for is not found");
+    }
 
-				}
+    frontier.add(new Path(vertices.get(start)));
 
-			}
+    while (!frontier.isEmpty()) {
+      Path p = frontier.poll();
 
-		}
-		if(completedPath.isEmpty()) { // if no completed path is found (i.e paths that start with the starting parameter data and end with the ending parameter data
-			throw new NoSuchElementException("The algorithm did not found any path that connects the starting vertex with the ending vertex");
-		}
-		else { 
-			return completedPath.poll(); // return the cheapest completed path
-		}
-	}
+      if (p.end.data.equals(end)) { // If path is polled from queue which leads to desired vertex,
+                                    // that path must be shortest to that value as the code
+                                    // immediately returns that path
+        return p;
+      } else if (!visited.contains(p.end.data)) { // Otherwise, it checks if vertex has been visited
+        visited.add(p.end.data); // Adds vertex data to list of "visited" vertices
+        // found.add(p);
 
-	/**
-	 * Returns the shortest path between start and end. Uses Dijkstra's shortest
-	 * path algorithm to find the shortest path.
-	 * 
-	 * @param start the data item in the starting vertex for the path
-	 * @param end   the data item in the destination vertex for the path
-	 * @return list of data item in vertices in order on the shortest path between
-	 *         vertex with data item start and vertex with data item end, including
-	 *         both start and end
-	 * @throws NoSuchElementException when no path from start to end can be found
-	 *                                including when no vertex containing start or
-	 *                                end can be found
-	 */
-	public List<T> shortestPath(T start, T end) {
-		return dijkstrasShortestPath(start, end).dataSequence;
-	}
+        for (Edge e : p.end.edgesLeaving) { // Adds paths for all edges extending from this vertex
+                                            // to frontier even if path leads to a vertex for which
+                                            // there is a known shorter path, as this will be
+                                            // resolved by the priority queue's characteristics and
+                                            // the check for vertices that have already been visited
+          Path newPath = new Path(p, e);
+          frontier.add(newPath);
+        }
+      }
+    }
 
-	/**
-	 * Returns the cost of the path (sum over edge weights) between start and end.
-	 * Uses Dijkstra's shortest path algorithm to find the shortest path.
-	 * 
-	 * @param start the data item in the starting vertex for the path
-	 * @param end   the data item in the end vertex for the path
-	 * @return the cost of the shortest path between vertex with data item start and
-	 *         vertex with data item end, including all edges between start and end
-	 * @throws NoSuchElementException when no path from start to end can be found
-	 *                                including when no vertex containing start or
-	 *                                end can be found
-	 */
-	public int getPathCost(T start, T end) {
-		return dijkstrasShortestPath(start, end).distance;
-	}
+    throw new NoSuchElementException("The value you are seeking a path for is not found");
+  }
+
+  /**
+   * Returns the shortest path between start and end. Uses Dijkstra's shortest path algorithm to
+   * find the shortest path.
+   * 
+   * @param start the data item in the starting vertex for the path
+   * @param end   the data item in the destination vertex for the path
+   * @return list of data item in vertices in order on the shortest path between vertex with data
+   *         item start and vertex with data item end, including both start and end
+   * @throws NoSuchElementException when no path from start to end can be found including when no
+   *                                vertex containing start or end can be found
+   */
+  public List<T> shortestPath(T start, T end) {
+    return dijkstrasShortestPath(start, end).dataSequence;
+  }
+
+  /**
+   * Returns the cost of the path (sum over edge weights) between start and end. Uses Dijkstra's
+   * shortest path algorithm to find the shortest path.
+   * 
+   * @param start the data item in the starting vertex for the path
+   * @param end   the data item in the end vertex for the path
+   * @return the cost of the shortest path between vertex with data item start and vertex with data
+   *         item end, including all edges between start and end
+   * @throws NoSuchElementException when no path from start to end can be found including when no
+   *                                vertex containing start or end can be found
+   */
+  public int getPathCost(T start, T end) {
+    return dijkstrasShortestPath(start, end).distance;
+  }
 
 }
