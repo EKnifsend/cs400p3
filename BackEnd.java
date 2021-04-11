@@ -26,7 +26,7 @@ public class BackEnd {
 	protected List<Planets> planetsList;
 	protected List<Paths> pathsList;
 	private int size; // size of paths in graph
-	protected CS400Graph<Planets> solarSystem;
+	protected CS400Graph<String> solarSystem;
 
 	/**
 	 * Constructor for BackEnd object which takes in string from the user to put as
@@ -88,11 +88,9 @@ public class BackEnd {
 			String[] pathEntry = list.get(i).split(", ");
 			if (pathEntry[0].equalsIgnoreCase("Planet")) {
 				Planets planet = (new Planets(pathEntry[1]));
-				System.out.println(planet.getName());
 				planetsList.add(planet);
 			}
 			if (pathEntry[0].equalsIgnoreCase("Edge")) {
-				System.out.println(pathEntry[0]+ ", " +  pathEntry[1] + ", " + pathEntry[2] + ", " + pathEntry[3]);
 				pathsList.add(new Paths(new Planets(pathEntry[1]), new Planets(pathEntry[2]),
 						Integer.parseInt(pathEntry[3])));
 			}
@@ -105,17 +103,16 @@ public class BackEnd {
 	 */
 	public void initializeGraph() {
 
-		solarSystem = new CS400Graph<Planets>();
+		solarSystem = new CS400Graph<String>();
 
 		// add all the planets to the graph
 		for (int i = 0; i < planetsList.size(); i++) {
-			solarSystem.insertVertex(planetsList.get(i));
+			solarSystem.insertVertex(planetsList.get(i).getName());
 		}
 
 		// add all the paths to the graph
 		for (int i = 0; i < pathsList.size(); i++) {
-			System.out.println(i);
-			solarSystem.insertEdge(pathsList.get(i).getStart(), pathsList.get(i).getEnd(),
+			solarSystem.insertEdge(pathsList.get(i).getStart().getName(), pathsList.get(i).getEnd().getName(),
 					pathsList.get(i).getFuelCost());
 			size++;
 		}
@@ -128,8 +125,8 @@ public class BackEnd {
 	 * @return true if added successfully, false otherwise
 	 */
 	public boolean addPlanet(String planet) {
-		if (!solarSystem.containsVertex(new Planets(planet))) {
-			solarSystem.insertVertex(new Planets(planet));
+		if (!solarSystem.containsVertex(planet)) {
+			solarSystem.insertVertex(planet);
 			return true;
 		}
 		return false;
@@ -143,22 +140,20 @@ public class BackEnd {
 	 * @return true if added successfully, false otherwise
 	 */
 	public boolean addPath(String start, String end, int path) {
-		Planets startPlanet = new Planets(start);
-		Planets endPlanet = new Planets(end);
-
+		
 		// adds start planet if solarSystem doesn't contain it
-		if (!solarSystem.containsVertex(startPlanet)) {
+		if (!solarSystem.containsVertex(start)) {
 			addPlanet(start);
 		}
 
 		// adds end planet if solarSystem doesn't contain it
-		if (!solarSystem.containsVertex(endPlanet)) {
+		if (!solarSystem.containsVertex(end)) {
 			addPlanet(end);
 		}
 
 		// adds edge if solarSystem doesn't contain it
-		if (!solarSystem.containsEdge(startPlanet, endPlanet)) {
-			solarSystem.insertEdge(startPlanet, endPlanet, path);
+		if (!solarSystem.containsEdge(start, end)) {
+			solarSystem.insertEdge(start, end, path);
 			size++;
 			return true;
 		}
@@ -173,8 +168,8 @@ public class BackEnd {
 	 * @return true if removed successfully, false otherwise
 	 */
 	public boolean removePlanet(String planet) {
-		if (solarSystem.containsVertex(new Planets(planet))) {
-			solarSystem.removeVertex(new Planets(planet));
+		if (solarSystem.containsVertex(planet)) {
+			solarSystem.removeVertex(planet);
 			return true;
 		}
 		return false;
@@ -187,8 +182,8 @@ public class BackEnd {
 	 * @return true if removed successfully, false otherwise
 	 */
 	public boolean removePath(String start, String end) {
-		if (solarSystem.containsEdge(new Planets(start), new Planets(end))) {
-			solarSystem.removeEdge(new Planets(start), new Planets(end));
+		if (solarSystem.containsEdge(start, end)) {
+			solarSystem.removeEdge(start, end);
 			return true;
 		}
 		return false;
@@ -224,14 +219,12 @@ public class BackEnd {
 	 * @return fuel cost
 	 */
 	public int getFuelCost(String start, String end) throws NoSuchElementException {
-		Planets startPlanet = new Planets(start);
-		Planets endPlanet = new Planets(end);
 
-		if (!solarSystem.containsEdge(startPlanet, endPlanet)) {
+		if (!solarSystem.containsEdge(start, end)) {
 			return -1;
 		}
 
-		return solarSystem.getPathCost(new Planets(start), new Planets(end));
+		return solarSystem.getPathCost(start, end);
 	}
 
 	/**
@@ -262,11 +255,3 @@ public class BackEnd {
 	}
 
 }
-
-// doesn't the Planets object have to contain info for planets it goes to and the fuel costs
-// i think we should only have one csv file
-
-// or list of paths so make a path object with start, end, and fuel cost
-// planet can just contain name
-
-// so make graph of just planets then add from paths list
