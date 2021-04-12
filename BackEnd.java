@@ -86,13 +86,43 @@ public class BackEnd {
 	public void helper(List<String> list) {
 		for (int i = 0; i < list.size(); i++) {
 			String[] pathEntry = list.get(i).split(", ");
+
+			// adds planet to planetsList
+			boolean foundPlanet = false;
 			if (pathEntry[0].equalsIgnoreCase("Planet")) {
-				Planets planet = (new Planets(pathEntry[1]));
-				planetsList.add(planet);
+				for (int x = 0; x < planetsList.size(); x++) {
+					if (planetsList.get(x).getName().equalsIgnoreCase(pathEntry[1])) {
+						foundPlanet = true;
+					}
+				}
+				if (!foundPlanet) {
+					planetsList.add(new Planets(pathEntry[1]));
+				}
 			}
+
+			// adds path to pathsList
+			boolean foundStart = false;
+			boolean foundEnd = false;
 			if (pathEntry[0].equalsIgnoreCase("Edge")) {
 				pathsList.add(new Paths(new Planets(pathEntry[1]), new Planets(pathEntry[2]),
 						Integer.parseInt(pathEntry[3])));
+
+				// adding to planets list if not already there
+				for (int j = 0; j < planetsList.size(); j++) {
+					if (planetsList.get(j).getName().equalsIgnoreCase(pathEntry[1])) {
+						foundStart = true;
+					}
+					if (planetsList.get(j).getName().equalsIgnoreCase(pathEntry[2])) {
+						foundEnd = true;
+					}
+				}
+				if (!foundStart) {
+					planetsList.add(new Planets(pathEntry[1]));
+				}
+				if (!foundEnd) {
+					planetsList.add(new Planets(pathEntry[2]));
+				}
+
 			}
 		}
 	}
@@ -124,9 +154,11 @@ public class BackEnd {
 	 * @param planet
 	 * @return true if added successfully, false otherwise
 	 */
-	public boolean addPlanet(String planet) {
+	public boolean addPlanet(String planet) throws IllegalArgumentException {
 		if (!solarSystem.containsVertex(planet)) {
 			solarSystem.insertVertex(planet);
+			// adds to planetsList
+			planetsList.add(new Planets(planet));
 			return true;
 		}
 		return false;
@@ -139,8 +171,8 @@ public class BackEnd {
 	 * @param path
 	 * @return true if added successfully, false otherwise
 	 */
-	public boolean addPath(String start, String end, int path) {
-		
+	public boolean addPath(String start, String end, int path) throws IllegalArgumentException {
+
 		// adds start planet if solarSystem doesn't contain it
 		if (!solarSystem.containsVertex(start)) {
 			addPlanet(start);
@@ -154,6 +186,8 @@ public class BackEnd {
 		// adds edge if solarSystem doesn't contain it
 		if (!solarSystem.containsEdge(start, end)) {
 			solarSystem.insertEdge(start, end, path);
+			// adds to pathsList
+			pathsList.add(new Paths(new Planets(start), new Planets(end), path));
 			size++;
 			return true;
 		}
@@ -167,9 +201,16 @@ public class BackEnd {
 	 * @param planet
 	 * @return true if removed successfully, false otherwise
 	 */
-	public boolean removePlanet(String planet) {
+	public boolean removePlanet(String planet) throws IllegalArgumentException{
 		if (solarSystem.containsVertex(planet)) {
 			solarSystem.removeVertex(planet);
+
+			// removes from planetsList
+			for (int i = 0; i < planetsList.size(); i++) {
+				if (planetsList.get(i).getName().equalsIgnoreCase(planet)) {
+					planetsList.remove(i);
+				}
+			}
 			return true;
 		}
 		return false;
@@ -181,9 +222,17 @@ public class BackEnd {
 	 * @param start, end
 	 * @return true if removed successfully, false otherwise
 	 */
-	public boolean removePath(String start, String end) {
+	public boolean removePath(String start, String end) throws IllegalArgumentException{
 		if (solarSystem.containsEdge(start, end)) {
 			solarSystem.removeEdge(start, end);
+			
+			// removes from pathsList
+			for (int i = 0; i < pathsList.size(); i++) {
+				if (pathsList.get(i).getStart().getName().equalsIgnoreCase(start)
+						|| pathsList.get(i).getEnd().getName().equalsIgnoreCase(end)) {
+					pathsList.remove(i);
+				}
+			}
 			return true;
 		}
 		return false;
@@ -202,11 +251,12 @@ public class BackEnd {
 			output += "\nPaths from " + planetsList.get(i).getName() + ":\n";
 
 			for (int j = 0; j < pathsList.size(); j++) {
-				if (pathsList.get(i).getStart().getName().equals(planetsList.get(i).getName())) {
-					output += "\t" + pathsList.get(i).toString() + "\n";
+				if (pathsList.get(j).getStart().getName().equals(planetsList.get(i).getName())) {
+					output += "\t" + pathsList.get(j).toString() + "\n";
 				}
 			}
 		}
+
 		return output;
 	}
 
@@ -218,7 +268,7 @@ public class BackEnd {
 	 * @param end
 	 * @return fuel cost
 	 */
-	public int getFuelCost(String start, String end) throws NoSuchElementException {
+	public int getFuelCost(String start, String end) throws NoSuchElementException, IllegalArgumentException{
 
 		if (!solarSystem.containsEdge(start, end)) {
 			return -1;
@@ -233,7 +283,7 @@ public class BackEnd {
 	 * @param planet
 	 * @return
 	 */
-	public List<Paths> getPlanetPaths(String planet) {
+	public List<Paths> getPlanetPaths(String planet) throws IllegalArgumentException{
 
 		List<Paths> output = new ArrayList<Paths>();
 		for (int i = 0; i < pathsList.size(); i++) {
