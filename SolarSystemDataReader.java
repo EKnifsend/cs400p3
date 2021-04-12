@@ -100,7 +100,7 @@ public class SolarSystemDataReader {
 	
 	/**
 	 * Read the data from the csv file and put it in a list of strings for the backend to use
-	  * @param inputFileReader Reader of csv file containing strings of planets
+	 * @param inputFileReader Reader of csv file containing strings of planets
 	 *                        (vertex) and paths (edges)
 	 * @return List<Planets> which is the list of strings contained in csv file
 	 * @throws FileNotFoundException if the csv file is not found
@@ -121,12 +121,12 @@ public class SolarSystemDataReader {
 					toAdd = pathEntry[0]+ ", " +  pathEntry[1] + ", " + pathEntry[2] + ", " + pathEntry[3];
 				}
 				
-				if (pathEntry[0].equals("Planet")) {
+				if (pathEntry[0].equals("Planet")) { // checks if the first column of the data entry equals to Planet, if
+					// so add it to toAdd list
 					toAdd = pathEntry[0] + ", " + pathEntry[1]; 
 				}
 				path.add(toAdd);
-				
-				row = reader.readLine();
+				row = reader.readLine(); // check the next line
 			}
 			reader.close();
 			return path;

@@ -64,7 +64,6 @@ public class DataWranglerTests {
 		SolarSystemDataReader readDataSet = new SolarSystemDataReader();
 		
 		planetNames = readDataSet.readPlanetNames(filePathInput);
-		System.out.print("Test");
 		if(!planetNames.get(0).getName().equals("Mercury")) {
 			fail("Didn't get the first correct planet name – should be Mercury");
 		}
@@ -77,7 +76,7 @@ public class DataWranglerTests {
 	/**
 	 * Checks to see if the the readPaths() can get the correct
 	 * paths from the csv file and put them in the list of pathToPlanets
-	 * @throws IOException
+	 * @throws IOException if file is not read properly
 	 */
 	@Test
 	public void testReadPathsToPlanets() throws IOException {
@@ -93,6 +92,29 @@ public class DataWranglerTests {
 		
 		if(!pathToPlanets.get(9).getEnd().getName().equals("Uranus")) {
 			fail("Should have returned Uranus as the target planet vertex");
+		}
+		
+	}
+	
+	/**
+	 * Test to check if the read() method works, for every row in the csv file, it should create
+	 * a string where data in each column is separated by a comma
+	 * @throws IOException if file is not read properly
+	 */
+	@Test
+	public void testRead() throws IOException {
+		Reader filePathInput;
+		filePathInput = new FileReader("solarsystem.csv");
+		List<String> readPathsAndPlanets;
+		SolarSystemDataReader readDataSet = new SolarSystemDataReader();
+		
+		readPathsAndPlanets = readDataSet.read(filePathInput);
+		if(!readPathsAndPlanets.get(0).equals("Planet, Mercury")) {
+			fail("Should have gotten – Planet, Mercury");
+		}
+		
+		if(!readPathsAndPlanets.get(10).equals("Edge, Sun, Mercury, 400")) {
+			fail("Should have gotten – Edge, Sun, Mercury, 400");
 		}
 		
 	}
