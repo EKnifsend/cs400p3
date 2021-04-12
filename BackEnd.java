@@ -251,7 +251,7 @@ public class BackEnd {
 			output += "\nPaths from " + planetsList.get(i).getName() + ":\n";
 
 			for (int j = 0; j < pathsList.size(); j++) {
-				if (pathsList.get(j).getStart().getName().equals(planetsList.get(i).getName())) {
+				if (pathsList.get(j).getStart().getName().equalsIgnoreCase(planetsList.get(i).getName())) {
 					output += "\t" + pathsList.get(j).toString() + "\n";
 				}
 			}
