@@ -34,14 +34,13 @@ class BackEndDeveloperTests {
 	 */
 	@Test
 	public void testBackEndObject() throws NullPointerException, FileNotFoundException {
-		Reader filePathInput;
-		String dataInput = "Planet, Mercury\n" + "Edge, Mercury, Sun, 400\n" + "Edge, Sun, Jupiter, 5000";
+		String dataInput = "Planet,Mercury\n" + "Edge,Sun,Mercury,400\n" + "Edge,Sun,Venus,700";
 
-		filePathInput = new FileReader("solarsystem.csv");
+		Reader filePathInput = new FileReader("solarsystem.csv");
 		BackEnd backEnd1;
 		BackEnd backEnd2;
 		// size is the number of paths (edges)
-		int expectedSizeForBE1 = 20;
+		int expectedSizeForBE1 = 22;
 		int expectedSizeForBE2 = 2;
 		try {
 			backEnd1 = new BackEnd(filePathInput); // backEnd object using the csv file as the data input
@@ -124,10 +123,10 @@ class BackEndDeveloperTests {
 
 		try {
 			backEnd = new BackEnd(filePathInput);
-			backEnd.addPath("Mars", "Mercury", 300);
-			assertEquals(300, backEnd.getFuelCost("Mars", "Mercury"));
-			backEnd.addPath("Venus", "Jupiter", 6000);
-			assertEquals(6000, backEnd.getFuelCost("Venus", "Jupiter"));
+			backEnd.addPath("Mars", "Sun", 300);
+			assertEquals(300, backEnd.getFuelCost("Mars", "Sun"));
+			backEnd.addPath("Saturn", "Jupiter", 6000);
+			assertEquals(6000, backEnd.getFuelCost("Saturn", "Jupiter"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
@@ -187,11 +186,11 @@ class BackEndDeveloperTests {
 			backEnd.addPath("Athens", "Morocco", 400);
 			backEnd.addPath("Morocco", "Honolulu", 500);
 			backEnd.addPath("Honolulu", "Athens", 600);
-			assertEquals("Morocco", backEnd.getPlanetPaths("Athens").get(0));
+			assertEquals("Morocco", backEnd.getPlanetPaths("Athens").get(0).getEnd().getName());
 			assertEquals(400, backEnd.getFuelCost("Athens", "Morocco"));
-			assertEquals("Honolulu", backEnd.getPlanetPaths("Morocco").get(0));
+			assertEquals("Honolulu", backEnd.getPlanetPaths("Morocco").get(0).getEnd().getName());
 			assertEquals(500, backEnd.getFuelCost("Morocco", "Honolulu"));
-			assertEquals("Athens", backEnd.getPlanetPaths("Honolulu").get(0));
+			assertEquals("Athens", backEnd.getPlanetPaths("Honolulu").get(0).getEnd().getName());
 			assertEquals(600, backEnd.getFuelCost("Honolulu", "Athens"));
 		} catch (IOException e) {
 			e.printStackTrace();
