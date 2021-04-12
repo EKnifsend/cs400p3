@@ -12,9 +12,9 @@
  *
  */
 public class Paths {
-	private Planets start;
-	private Planets end;
-	private int fuelCost;
+	protected Planets start;
+	protected Planets end;
+	protected int fuelCost;
 
 	/**
 	 * Constructor for Path object

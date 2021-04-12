@@ -6,7 +6,7 @@
 // Role: Data Wrangler
 // TA: Daniel Finer
 // Lecturer: Gary Dahl
-// Notes to Grader: N/A
+// Notes to Grader: Read method was created by the backEnd developer 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,14 +38,12 @@ public class SolarSystemDataReader {
 			List<Planets> planetNames = new ArrayList<Planets>(); // list of Planet Objects to be returned
 			BufferedReader reader = new BufferedReader(inputFileReader);
 			String row = reader.readLine(); // reads every line of the csv file after the header
-//	      int planetRadius;
-//	      int planetMeanTemp;
+
 			while (row != null) {
 				String[] planetEntry = row.split(","); // planetEntry[] = {Planet, <PlanetName>}
 				if (planetEntry[0].equals("Planet")) { // checks if the first column of the data entry equals to Planet,
 														// if so add it to planetNames list
-//	    	   planetRadius = Integer.parseInt(planetEntry[2]);
-//	    	   planetMeanTemp = Integer.parseInt(planetEntry[3]);
+
 					planetNames.add(new Planets(planetEntry[1]));
 				}
 				row = reader.readLine();
@@ -99,5 +97,43 @@ public class SolarSystemDataReader {
 			throw ioe;
 		}
 	}
-
+	
+	/**
+	 * Read the data from the csv file and put it in a list of strings for the backend to use
+	  * @param inputFileReader Reader of csv file containing strings of planets
+	 *                        (vertex) and paths (edges)
+	 * @return List<Planets> which is the list of strings contained in csv file
+	 * @throws FileNotFoundException if the csv file is not found
+	 * @throws IOException           if there an error when reading the file/sending
+	 *                               the output to the file
+	 */
+	public List<String> read(Reader inputFileReader) throws FileNotFoundException, IOException {
+		try {
+			List<String> path = new ArrayList<String>(); // list of paths objects to be returned
+			BufferedReader reader = new BufferedReader(inputFileReader);
+			String row = reader.readLine(); // reads every line of the csv file after the header
+			String toAdd = "";
+			
+			while (row != null) {
+				String[] pathEntry = row.split(","); 
+				if (pathEntry[0].equals("Edge")) { // checks if the first column of the data entry equals to Edge, if
+													// so add it to toAdd list
+					toAdd = pathEntry[0]+ ", " +  pathEntry[1] + ", " + pathEntry[2] + ", " + pathEntry[3];
+				}
+				
+				if (pathEntry[0].equals("Planet")) {
+					toAdd = pathEntry[0] + ", " + pathEntry[1]; 
+				}
+				path.add(toAdd);
+				
+				row = reader.readLine();
+			}
+			reader.close();
+			return path;
+		} catch (FileNotFoundException fnfe) {
+			throw fnfe;
+		} catch (IOException ioe) {
+			throw ioe;
+		}
+	}
 }

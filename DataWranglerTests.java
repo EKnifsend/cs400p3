@@ -37,13 +37,25 @@ public class DataWranglerTests {
 	Paths Neptune2Uranus = new Paths(PlanetTwo, PlanetFour, fuelTwoToFour);
 	Paths Pluto2Earth = new Paths(PlanetFive, PlanetThree, fuelFiveToThree);
 	  
+	/**
+	 * Test to check if the Paths and Planets method can get
+	 * the correct fields of a custom graph
+	 */
 	@Test
-	public void testGetPathDetails() {
+	public void testGetPathAndPlanetDetails() {
 		String expectedForEarthToMars = "It takes 500 gallons to go from Earth to Mars";
 		assertEquals(expectedForEarthToMars, Earth2Mars.toString());
 		
+		int expectedFuelFromPlutoToEarth = 1000;
+		assertEquals(expectedFuelFromPlutoToEarth, Pluto2Earth.getFuelCost());
+		
 	}
 	
+	/**
+	 * Check to see if the readPlanetNames() can load the data from 
+	 * the csv file properly to the list of planetName
+	 * @throws IOException if file is not read properly
+	 */
 	@Test
 	public void testReadPlanetNames() throws IOException {
 		Reader filePathInput;
@@ -62,6 +74,11 @@ public class DataWranglerTests {
 		
 	}
 	
+	/**
+	 * Checks to see if the the readPaths() can get the correct
+	 * paths from the csv file and put them in the list of pathToPlanets
+	 * @throws IOException
+	 */
 	@Test
 	public void testReadPathsToPlanets() throws IOException {
 		Reader filePathInput;
@@ -79,7 +96,6 @@ public class DataWranglerTests {
 		}
 		
 	}
-	
-	
+
 
 }
