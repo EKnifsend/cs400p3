@@ -44,7 +44,7 @@ public class Paths {
 	 * @return String that contains the information about a certain planet
 	 */
 	public String toString() {
-		return start + " takes " + fuelCost + " to go to " + end;
+		return start.getName() + " takes " + fuelCost + " to go to " + end.getName();
 	}
 	
 }
