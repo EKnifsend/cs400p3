@@ -18,13 +18,16 @@ import java.util.InputMismatchException;
 import java.util.List;
 
 /**
- * TODO
+ * Frontend interface for the user to explore the solarsystem dataset by prompting user inputs.
+ * There is one file screen and 7 modes in the main screen, and users can find the shortest path,
+ * print all planets,print all edges, check if two planets are connected, add a new edge, remove all
+ * edges, add a new planet, and remove an existing planet from the dataset.
  * 
  * @author Hailey
  *
  */
 public class Frontend {
-  private static Backend backend;
+  private static BackEnd backend;
   private static Scanner scnr;
 
   /**
@@ -38,13 +41,14 @@ public class Frontend {
   }
 
   /**
-   * TODO
+   * Runs the Planet navigator app. Prints out app functionalities and prompts the user to provide a
+   * file path to the dataset, either by a file path or by manually.
    * 
    * @param args String array from the command prompt
    * @throws DataFormatException
    * @throws IOException
    */
-  public static void run(Backend backEnd) throws IOException, DataFormatException {
+  public static void run(BackEnd backEnd) throws IOException, DataFormatException {
     String filePath; // String object that contains the filePath to the csvFile
     String csvAsAString; // String object that contains the csv inputted as a string
     String userChoice; // Defines the userChoice given a prompt
@@ -58,7 +62,7 @@ public class Frontend {
 
     String enterFile =
         "This is the FILE SCREEN.\nWe need you to provide a planet dataset you wish to explore.\n"
-            + "Please enter a file to proceed with the program.\n\n";
+            + "Enter 'x' to quit, 'f' to enter a filepath, or 's' to enter a string:\n";
 
     String modeOptions =
         "This is the MAIN SCREEN.\nThere are 6 options to choose from in this app.\n"
@@ -96,7 +100,7 @@ public class Frontend {
           try {
             filePathInput = new FileReader(filePath);
             // initializes the backend with a reader object as the argument
-            backend = new Backend(filePathInput);
+            backend = new BackEnd(filePathInput);
 
           } catch (FileNotFoundException e) {
             System.out.println("This file does not exist.\n");
@@ -110,7 +114,7 @@ public class Frontend {
             System.out.println("Please enter a string to the planet explorer csv file:\t");
             csvAsAString = scnr.next();
             // intializes backend with a String as the object
-            backend = new Backend(csvAsAString);
+            backend = new BackEnd(csvAsAString);
           }
           // if input is null
           else if (userChoice.isEmpty() || userChoice.trim().isEmpty()) {
@@ -189,15 +193,50 @@ public class Frontend {
   }
 
   /**
-   * Calls { TODO }method in the Backend class to find the shortest path between two planets as well
-   * as to calculate its total fuel cost.
+   * Calls getFuelCost() method in the Backend class to find the shortest path between two planets
+   * as well as to calculate its total fuel cost.
    * 
    * @param backend Backend class
    */
-  public static void findShortestPath(Backend backend) {
-    // public int getFuelCost(Planet start, Planet end);
-    // TODO?: how is this returning both the shortest cost and the fuel cost
-    // TODO
+  public static void findShortestPath(BackEnd backend) {
+
+    boolean run = true;
+    boolean ask = true;
+    String askPlanet1 = "What is the name of the planet you'd like to travel from?";
+    String askPlanet2 = "What is the name of the planet you'd like to travel to?";
+    while (run) {
+      System.out.println(askPlanet1);
+      String planet1 = scnr.next();
+      System.out.println(askPlanet2);
+      String planet2 = scnr.next();
+      int fuelCost = backend.getFuelCost(planet1, planet2);
+      if (fuelCost != -1) {
+        System.out.println("It takes " + fuelCost + " fuel cost to travel from " + planet1 + " to "
+            + planet2 + ".");
+
+      } else {
+        System.out.println("We couldn't find the fuel cost to travel from " + planet1 + " to "
+            + planet2 + ". Please try again with valid planets.");
+      }
+
+      while (ask) {
+        System.out.println("Would you like to search fuel costs to travel between other planets?");
+        System.out.println("Enter 'y' for yes, 'n' for no.");
+        String userChoice = scnr.next();
+        if (userChoice.equalsIgnoreCase("y")) {
+          break;
+        } else if (userChoice.equalsIgnoreCase("n")) {
+          run = false;
+          break;
+        } else {
+          System.out.println("Your input is not one of the options. Please enter a valid option.");
+          continue;
+        }
+
+      }
+    }
+
+
   }
 
   /**
@@ -205,11 +244,10 @@ public class Frontend {
    * 
    * @param backend
    */
-  public static void printAllPlanets(Backend backend) {
-    // public List<Planet> getAllPlanets();
+  public static void printAllPlanets(BackEnd backend) {
+
     System.out.println("Here are the list of all planets in the current dataset: ");
-    System.out.println(Arrays.toString(backend.printAllPlanets())); // TODO: List of Planet str
-                                                                    // representations
+    System.out.println(backend.getAllPlanets());
   }
 
   /**
@@ -217,7 +255,7 @@ public class Frontend {
    * 
    * @param backend
    */
-  public static void printAllEdges(Backend backend) {
+  public static void printAllEdges(BackEnd backend) {
     // public List<Planet> getPlanetPaths(Planet planet); // returns list of all planets and the
     // fuel cost
     boolean run = true;
@@ -228,16 +266,17 @@ public class Frontend {
       System.out.println(askPlanet);
       String planetInput = scnr.next();
       try {
-        List<Planet> paths = backend.getPlanetPaths(planetInput);
+        List<Paths> paths = backend.getPlanetPaths(planetInput);
         System.out.println("Search results: ");
         System.out.println(Arrays.toString(paths.toArray()));
       } catch (IllegalArgumentException e) {
-        // TODO: if planetInput is invalid input
+
         System.out.println("This planet is not in the current planet navigator dataset.");
       }
 
       while (ask) {
         System.out.println("Would you like to search for other planet paths?");
+        System.out.println("Enter 'y' for yes, 'n' for no.");
         String userChoice = scnr.next();
         if (userChoice.equalsIgnoreCase("y")) {
           break;
@@ -254,11 +293,12 @@ public class Frontend {
   }
 
   /**
-   * Checks if two planets are connectred.
+   * Checks if two planets are connectred by comparing the ending planets extending from the path
+   * from the planet.
    * 
    * @param backend
    */
-  public static void isConnected(Backend backend) {
+  public static void isConnected(BackEnd backend) {
     // TODO: check the output of the getPlanetPaths which returns a list of Planet
     String askFirst = "What is the FIRST planet you would like to search for?";
     String askSecond = "What is the SECOND planet you would like to search for?";
@@ -266,19 +306,23 @@ public class Frontend {
     boolean run = true;
     boolean ask = true;
     while (run) {
-      System.out.println(askFirst);
-      String planet1 = scnr.next();
-      System.out.println(askSecond);
-      String planet2 = scnr.next();
+
 
       try {
-        List<Planet> connectedPlanets = backend.getPlanetPaths(planet1);
-        for (Planet p : connectedPlanets) {
-          if (p.equals(planet2)) {
+        System.out.println(askFirst);
+        String planet1 = scnr.next();
+        System.out.println(askSecond);
+        String planet2 = scnr.next();
+
+        List<Paths> connectedPlanets = backend.getPlanetPaths(planet1);
+        for (Paths p : connectedPlanets) {
+          if (p.end.toString().equals("This planet is called " + planet2.toString())) {
             System.out.println(planet1 + " and " + planet2 + " are connected!");
+            return;
           }
         }
         System.out.println(planet1 + " and " + planet2 + " are NOT connected.");
+
       } catch (IllegalArgumentException e) {
         System.out.println(
             "Either one of the provided planets or both planets are invalid. Please try agaoin.");
@@ -286,7 +330,7 @@ public class Frontend {
 
       while (ask) {
         System.out.println("\nWould you like to look for whether other two planets are connected? "
-            + "(enter 'y' for yes and 'n' for no):\t");
+            + "\nEnter 'y' for yes and 'n' for no");
         String userChoice = scnr.next();
         if (userChoice.equalsIgnoreCase("y")) {
           break;
@@ -307,33 +351,40 @@ public class Frontend {
    * 
    * @param backend
    */
-  public static void addEdge(Backend backend) {
+  public static void addEdge(BackEnd backend) {
     boolean run = true;
     boolean ask = true;
 
-    String askPlanet = "What is the name of the planet you would like to add to this dataset?: ";
+    String askPlanet =
+        "What is the name of the planet you would like to add the starting edge from?: ";
     String askPathCost =
         "What is the path cost you would like to add to the corresponding planet?: ";
+    String askEndPlanet =
+        "What is the name of the planet you would like to add the ending edge to?: ";
 
     while (run) {
-      System.out.println(askPlanet);
-      String planet = scnr.next();
-      System.out.println(askPathCost);
-      int path = Integer.parseInt(scnr.next());
 
       try {
-        if (backend.addPath(planet, path)) {
+        System.out.println(askPlanet);
+        String planet = scnr.next();
+        System.out.println(askPathCost);
+        int path = Integer.parseInt(scnr.next());
+        System.out.println(askEndPlanet);
+        String planetEnd = scnr.next();
+
+
+        if (backend.addPath(planet, planetEnd, path)) {
           System.out.println("A new planet is successfully added to the dataset!");
         } else {
           System.out.println("OOPS something must have gone wrong. Please try again.");
         }
       } catch (Exception e) {
-        // TODO: handle exception? no?
+        System.out.println("Please enter valid planets and costs. Please try again.");
       }
 
       while (ask) {
         System.out.println(
-            "\nWould you like to add another path to the dataset? (enter 'y' for yes and 'n' for no):\t");
+            "Would you like to add another path to the dataset?\nEnter 'y' for yes and 'n' for no");
         String userChoice = scnr.next();
         if (userChoice.equalsIgnoreCase("y")) {
           break;
@@ -349,35 +400,36 @@ public class Frontend {
   }
 
   /**
-   * TODO: removePath needed?? Calls removePath() method in the Backend class to remove a path to
-   * the specified planet.
+   * Calls removePath() method in the Backend class to remove all paths extending from the specified
+   * planet.
    * 
    * @param backend
    */
-  public static void removeEdge(Backend backend) {
+  public static void removeEdge(BackEnd backend) {
     boolean run = true;
     boolean ask = true;
 
     String askPlanet =
-        "What is the name of the planet whose path you would like to remove to this dataset?: ";
-    String askPathCost =
-        "What is the path cost you would like to remove for the corresponding planet?: ";
+        "What is the name of the starting planet whose path you would like to remove from this dataset?: ";
+    String askEndPlanet =
+        "What is the name of the ending planet whose path you would like to remove from this dataset?: ";
 
     while (run) {
+      System.out.println(
+          "CAUTION: ALL edges from the starting planet to the ending planet will be removed from the dataset in this operation.");
       System.out.println(askPlanet);
       String planet = scnr.next();
-      System.out.println(askPathCost);
-      int path = Integer.parseInt(scnr.next());
+      System.out.println(askEndPlanet);
+      String endPlanet = scnr.next();
 
       try {
-        if (backend.removePath(planet, path)) {
-          System.out.println("An existing planet is successfully removed from the dataset!");
+        if (backend.removePath(planet, endPlanet)) {
+          System.out.println("All paths successfully removed from the dataset!");
         } else {
           System.out.println("OOPS something must have gone wrong. Please try again.");
-          // TODO: for the backemd: return false if the input path is not in the planet data
         }
       } catch (Exception e) {
-        // TODO: handle exception? no?
+        System.out.println("OOPS something must have gone wrong. Please try again.");
       }
 
       while (ask) {
@@ -403,22 +455,22 @@ public class Frontend {
    * 
    * @param backend
    */
-  public static void addPlanet(Backend backend) {
+  public static void addPlanet(BackEnd backend) {
     boolean run = true;
     boolean ask = true;
     String askPlanet = "What is the name of the planet you would like to add to this dataset?: ";
-    String planet = scnr.next();
 
     while (run) {
+      System.out.println(askPlanet);
+      String planet = scnr.next();
       try {
         if (backend.addPlanet(planet)) {
           System.out.println("A new planet is successfully added to the dataset!");
         } else {
           System.out.println("OOPS something must have gone wrong. Please try again.");
-          // TODO: for the backemd: return false if the input path is not in the planet data
         }
       } catch (Exception e) {
-        // TODO: based on backend
+        System.out.println("OOPS something must have gone wrong. Please try again.");
       }
 
       while (ask) {
@@ -446,13 +498,16 @@ public class Frontend {
    * 
    * @param backend
    */
-  public static void removePlanet(Backend backend) {
+  public static void removePlanet(BackEnd backend) {
     boolean run = true;
     boolean ask = true;
-    String askPlanet = "What is the name of the planet you would like to remove from this dataset?: ";
-    String planet = scnr.next();
+    String askPlanet =
+        "What is the name of the planet you would like to remove from this dataset?: ";
 
     while (run) {
+      System.out.println(askPlanet);
+      String planet = scnr.next();
+
       try {
         if (backend.removePlanet(planet)) {
           System.out.println("A new planet is successfully removed from the dataset!");
@@ -460,7 +515,7 @@ public class Frontend {
           System.out.println("OOPS something must have gone wrong. Please try again.");
         }
       } catch (Exception e) {
-        // TODO: based on backend
+        System.out.println("OOPS something must have gone wrong. Please try again.");
       }
 
       while (ask) {
