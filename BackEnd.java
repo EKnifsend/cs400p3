@@ -85,42 +85,42 @@ public class BackEnd {
 	 */
 	public void helper(List<String> list) {
 		for (int i = 0; i < list.size(); i++) {
-			String[] pathEntry = list.get(i).split(", ");
+			String[] entry = list.get(i).split(", ");
 
 			// adds planet to planetsList
 			boolean foundPlanet = false;
-			if (pathEntry[0].equalsIgnoreCase("Planet")) {
+			if (entry[0].equalsIgnoreCase("planet")) {
 				for (int x = 0; x < planetsList.size(); x++) {
-					if (planetsList.get(x).getName().equalsIgnoreCase(pathEntry[1])) {
+					if (planetsList.get(x).getName().equalsIgnoreCase(entry[1])) {
 						foundPlanet = true;
 					}
 				}
 				if (!foundPlanet) {
-					planetsList.add(new Planets(pathEntry[1]));
+					planetsList.add(new Planets(entry[1]));
 				}
 			}
 
 			// adds path to pathsList
 			boolean foundStart = false;
 			boolean foundEnd = false;
-			if (pathEntry[0].equalsIgnoreCase("Edge")) {
-				pathsList.add(new Paths(new Planets(pathEntry[1]), new Planets(pathEntry[2]),
-						Integer.parseInt(pathEntry[3])));
+			if (entry[0].equalsIgnoreCase("edge")) {
+				pathsList.add(new Paths(new Planets(entry[1]), new Planets(entry[2]),
+						Integer.parseInt(entry[3])));
 
 				// adding to planets list if not already there
 				for (int j = 0; j < planetsList.size(); j++) {
-					if (planetsList.get(j).getName().equalsIgnoreCase(pathEntry[1])) {
+					if (planetsList.get(j).getName().equalsIgnoreCase(entry[1])) {
 						foundStart = true;
 					}
-					if (planetsList.get(j).getName().equalsIgnoreCase(pathEntry[2])) {
+					if (planetsList.get(j).getName().equalsIgnoreCase(entry[2])) {
 						foundEnd = true;
 					}
 				}
 				if (!foundStart) {
-					planetsList.add(new Planets(pathEntry[1]));
+					planetsList.add(new Planets(entry[1]));
 				}
 				if (!foundEnd) {
-					planetsList.add(new Planets(pathEntry[2]));
+					planetsList.add(new Planets(entry[2]));
 				}
 
 			}
@@ -155,10 +155,10 @@ public class BackEnd {
 	 * @return true if added successfully, false otherwise
 	 */
 	public boolean addPlanet(String planet) throws IllegalArgumentException {
-		if (!solarSystem.containsVertex(planet)) {
-			solarSystem.insertVertex(planet);
+		if (!solarSystem.containsVertex(planet.toLowerCase())) {
+			solarSystem.insertVertex(planet.toLowerCase());
 			// adds to planetsList
-			planetsList.add(new Planets(planet));
+			planetsList.add(new Planets(planet.toLowerCase()));
 			return true;
 		}
 		return false;
@@ -174,20 +174,20 @@ public class BackEnd {
 	public boolean addPath(String start, String end, int path) throws IllegalArgumentException {
 
 		// adds start planet if solarSystem doesn't contain it
-		if (!solarSystem.containsVertex(start)) {
-			addPlanet(start);
+		if (!solarSystem.containsVertex(start.toLowerCase())) {
+			addPlanet(start.toLowerCase());
 		}
 
 		// adds end planet if solarSystem doesn't contain it
-		if (!solarSystem.containsVertex(end)) {
-			addPlanet(end);
+		if (!solarSystem.containsVertex(end.toLowerCase())) {
+			addPlanet(end.toLowerCase());
 		}
 
 		// adds edge if solarSystem doesn't contain it
-		if (!solarSystem.containsEdge(start, end)) {
-			solarSystem.insertEdge(start, end, path);
+		if (!solarSystem.containsEdge(start.toLowerCase(), end.toLowerCase())) {
+			solarSystem.insertEdge(start.toLowerCase(), end.toLowerCase(), path);
 			// adds to pathsList
-			pathsList.add(new Paths(new Planets(start), new Planets(end), path));
+			pathsList.add(new Paths(new Planets(start.toLowerCase()), new Planets(end.toLowerCase()), path));
 			size++;
 			return true;
 		}
@@ -202,8 +202,8 @@ public class BackEnd {
 	 * @return true if removed successfully, false otherwise
 	 */
 	public boolean removePlanet(String planet) throws IllegalArgumentException{
-		if (solarSystem.containsVertex(planet)) {
-			solarSystem.removeVertex(planet);
+		if (solarSystem.containsVertex(planet.toLowerCase())) {
+			solarSystem.removeVertex(planet.toLowerCase());
 
 			// removes from planetsList
 			for (int i = 0; i < planetsList.size(); i++) {
@@ -223,8 +223,8 @@ public class BackEnd {
 	 * @return true if removed successfully, false otherwise
 	 */
 	public boolean removePath(String start, String end) throws IllegalArgumentException{
-		if (solarSystem.containsEdge(start, end)) {
-			solarSystem.removeEdge(start, end);
+		if (solarSystem.containsEdge(start.toLowerCase(), end.toLowerCase())) {
+			solarSystem.removeEdge(start.toLowerCase(), end.toLowerCase());
 			
 			// removes from pathsList
 			for (int i = 0; i < pathsList.size(); i++) {
