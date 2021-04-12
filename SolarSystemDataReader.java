@@ -83,12 +83,13 @@ public class SolarSystemDataReader {
 				String[] pathEntry = row.split(","); // pathEntry = {Edge, planetStart, targetPlanet, fuel}
 				if (pathEntry[0].equals("Edge")) { // checks if the first column of the data entry equals to Edge, if
 													// so add it to pathToPlanets list
-					planetStart = new Planets(pathEntry[1]); 
+					planetStart = new Planets(pathEntry[1]);
 					targetPlanet = new Planets(pathEntry[2]);
 					fuel = Integer.parseInt(pathEntry[3]);
-					pathToPlanets.add(new Paths(planetStart, targetPlanet, fuel)); // add a Paths object to the list of pathToPlanets
+					pathToPlanets.add(new Paths(planetStart, targetPlanet, fuel)); // add a Paths object to the list of
+																					// pathToPlanets
 				}
-				
+
 				row = reader.readLine();
 			}
 			reader.close();
@@ -99,26 +100,27 @@ public class SolarSystemDataReader {
 			throw ioe;
 		}
 	}
-	
+
 	public List<String> read(Reader inputFileReader) throws FileNotFoundException, IOException {
 		try {
 			List<String> path = new ArrayList<String>(); // list of paths objects to be returned
 			BufferedReader reader = new BufferedReader(inputFileReader);
 			String row = reader.readLine(); // reads every line of the csv file after the header
 			String toAdd = "";
-			
+
 			while (row != null) {
 				String[] pathEntry = row.split(","); // pathEntry = {Edge, planetStart, targetPlanet, fuel}
 				if (pathEntry[0].equals("Edge")) { // checks if the first column of the data entry equals to Edge, if
 													// so add it to pathToPlanets list
-					toAdd = pathEntry[0]+ ", " +  pathEntry[1] + ", " + pathEntry[2] + ", " + pathEntry[3];
+					toAdd = pathEntry[0].toLowerCase() + ", " + pathEntry[1].toLowerCase() + ", "
+							+ pathEntry[2].toLowerCase() + ", " + pathEntry[3].toLowerCase();
 				}
-				
+
 				if (pathEntry[0].equals("Planet")) {
-					toAdd = pathEntry[0] + ", " + pathEntry[1]; 
+					toAdd = pathEntry[0].toLowerCase() + ", " + pathEntry[1].toLowerCase();
 				}
 				path.add(toAdd);
-				
+
 				row = reader.readLine();
 			}
 			reader.close();
