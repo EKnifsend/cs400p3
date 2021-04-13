@@ -73,11 +73,11 @@ class BackEndDeveloperTests {
 		try {
 			backEnd = new BackEnd(filePathInput);
 			backEnd.addPlanet("Athens");
-			assertEquals(true, backEnd.getAllPlanets().contains("Athens")); // check if added planet Athens correctly
+			assertEquals(true, backEnd.getAllPlanets().toString().contains("Athens")); // check if added planet Athens correctly
 			backEnd.addPlanet("Morocco");
-			assertEquals(true, backEnd.getAllPlanets().contains("Morocco")); // check if added planet Morocco correctly
+			assertEquals(true, backEnd.getAllPlanets().toString().contains("Morocco")); // check if added planet Morocco correctly
 			backEnd.addPlanet("Honolulu");
-			assertEquals(true, backEnd.getAllPlanets().contains("Honolulu")); // check if added planet Honolulu
+			assertEquals(true, backEnd.getAllPlanets().toString().contains("Honolulu")); // check if added planet Honolulu
 																				// correctly
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -148,20 +148,22 @@ class BackEndDeveloperTests {
 			backEnd.addPath("Venus", "Jupiter", 6000);
 			assertEquals(true, backEnd.removePath("Mars", "Mercury"));
 			assertEquals(true, backEnd.removePath("Venus", "Jupiter"));
-			try {
-				if (backEnd.getFuelCost("Mars", "Mercury") == 300) {
-					fail("Should have failed because there should not be a path between Mars and Mercury");
-				}
-			} catch (NoSuchElementException e) {
-				// should catch the exception
-			}
-			try {
-				if (backEnd.getFuelCost("Venus", "Jupiter") == 6000) {
-					fail("Should have failed because there should not be a path between Venus and Jupiter");
-				}
-			} catch (NoSuchElementException e) {
-				// should catch the exception
-			}
+			assertEquals(false, backEnd.getPlanetPaths("Mars").toString().contains("It takes 300 gallons to go from Mars to Mercury"));
+			assertEquals(false, backEnd.getPlanetPaths("Venus").toString().contains("It takes 6000 gallons to go from Venus to Jupiter"));
+//			try {
+//				if (backEnd.getFuelCost("Mars", "Mercury") == 300) {
+//					fail("Should have failed because there should not be a path between Mars and Mercury");
+//				}
+//			} catch (NoSuchElementException e) {
+//				// should catch the exception
+//			}
+//			try {
+//				if (backEnd.getFuelCost("Venus", "Jupiter") == 6000) {
+//					fail("Should have failed because there should not be a path between Venus and Jupiter");
+//				}
+//			} catch (NoSuchElementException e) {
+//				// should catch the exception
+//			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
