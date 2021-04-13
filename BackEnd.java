@@ -158,7 +158,7 @@ public class BackEnd {
 		if (!solarSystem.containsVertex(planet.toLowerCase())) {
 			solarSystem.insertVertex(planet.toLowerCase());
 			// adds to planetsList
-			planetsList.add(new Planets(planet.toLowerCase()));
+			planetsList.add(new Planets(planet));
 			return true;
 		}
 		return false;
@@ -187,7 +187,7 @@ public class BackEnd {
 		if (!solarSystem.containsEdge(start.toLowerCase(), end.toLowerCase())) {
 			solarSystem.insertEdge(start.toLowerCase(), end.toLowerCase(), path);
 			// adds to pathsList
-			pathsList.add(new Paths(new Planets(start.toLowerCase()), new Planets(end.toLowerCase()), path));
+			pathsList.add(new Paths(new Planets(start), new Planets(end), path));
 			size++;
 			return true;
 		}
@@ -262,7 +262,7 @@ public class BackEnd {
 
 	/**
 	 * Method that calculates the shortest path between two specified planets and
-	 * then the fuel cost. return -1 if it does not exist.
+	 * then returns the fuel cost. throw a NoSuchElement exception if it does not exist.
 	 * 
 	 * @param start
 	 * @param end
@@ -270,11 +270,7 @@ public class BackEnd {
 	 */
 	public int getFuelCost(String start, String end) throws NoSuchElementException, IllegalArgumentException{
 
-		if (!solarSystem.containsEdge(start, end)) {
-			return -1;
-		}
-
-		return solarSystem.getPathCost(start, end);
+		return solarSystem.getPathCost(start.toLowerCase(), end.toLowerCase());
 	}
 
 	/**
@@ -287,7 +283,7 @@ public class BackEnd {
 
 		List<Paths> output = new ArrayList<Paths>();
 		for (int i = 0; i < pathsList.size(); i++) {
-			if (pathsList.get(i).getStart().getName().equals(planet)) {
+			if (pathsList.get(i).getStart().getName().toLowerCase().equalsIgnoreCase(planet)) {
 				output.add(pathsList.get(i));
 			}
 		}
